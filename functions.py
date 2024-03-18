@@ -1,6 +1,8 @@
 from tkinter import filedialog
 import pygame
 
+fast_forward_amount = 0
+
 # Function to choose a file
 def choose_file(time_label, time_scale):
     file_path = filedialog.askopenfilename(filetypes=[("MP3 files", "*.mp3")])
@@ -36,7 +38,9 @@ def adjust_volume(volume):
 
 # Function to show the time of music
 def update_time_label(time_label):
-    current_time = pygame.mixer.music.get_pos()
+    global fast_forward_amount
+    current_time = pygame.mixer.music.get_pos() + fast_forward_amount
+    print(current_time)
     formatted_time = update_time_label_helper(current_time)
     time_label.config(text=formatted_time)
     time_label.after(1000, update_time_label, time_label)
@@ -55,8 +59,6 @@ def update_time_label_helper(milliseconds):
 
 # Function to set music time
 def set_music_time(value):
+    global fast_forward_amount
     pygame.mixer.music.set_pos(value)
-
-# Function to handle slider change
-def on_slider_changed(value):
-    set_music_time(value)
+    fast_forward_amount = value*1000
