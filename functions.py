@@ -14,7 +14,7 @@ def play_music(file_path, time_label, time_scale):
     pygame.mixer.init()
     pygame.mixer.music.load(file_path)
     pygame.mixer.music.play()
-    update_time_label(time_label)
+    update_time_label(time_label, time_scale)
     duration = pygame.mixer.Sound(file_path).get_length()
     time_scale.config(to=duration)
     time_scale.pack(pady=10)
@@ -34,16 +34,20 @@ def stop_music():
 # Function to adjust volume
 def adjust_volume(volume):
     new_volume = volume / 100.0
-    pygame.mixer.music.set_volume(new_volume)
+    try:
+        pygame.mixer.music.set_volume(new_volume)
+    except:
+        pass
 
 # Function to show the time of music
-def update_time_label(time_label):
+def update_time_label(time_label, time_scale):
     global fast_forward_amount
     current_time = pygame.mixer.music.get_pos() + fast_forward_amount
-    print(current_time)
     formatted_time = update_time_label_helper(current_time)
     time_label.config(text=formatted_time)
-    time_label.after(1000, update_time_label, time_label)
+    if time_scale.cget("state") == "normal":
+        time_scale.set(current_time // 1000)
+    time_label.after(1000, update_time_label, time_label, time_scale)
 
 def update_time_label_helper(milliseconds):
     if milliseconds != -1:
@@ -61,4 +65,4 @@ def update_time_label_helper(milliseconds):
 def set_music_time(value):
     global fast_forward_amount
     pygame.mixer.music.set_pos(value)
-    fast_forward_amount = value*1000
+    fast_forward_amount = value*1000 - pygame.mixer.music.get_pos()
